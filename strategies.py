@@ -4,8 +4,8 @@ import time
 class MaCross(bt.Strategy):
 
     params = (
+        ('strat_name', 'macross'),
         ('ma_periods', 9),
-        ('stop_loss_perc', 50),
         ('boll_dev', 2),
         ('pos_size', 99),
         ('start', 0),
@@ -17,7 +17,6 @@ class MaCross(bt.Strategy):
         #print('%s, %s' % (dt.isoformat(), txt))
 
     def __init__(self):
-        # self.iteration_progress = tqdm(desc='Total runs', total=(self.datas[0].close.buflen()))       # possible progress bar
         self.startcash = self.broker.getvalue()
         self.dataclose = self.datas[0].close
         self.order = None
@@ -76,13 +75,13 @@ class MaCross(bt.Strategy):
 
             self.log('BUY CREATE, %.2f' % self.dataclose[0])
             self.order = self.buy()
-            self.order = self.sell(exectype=bt.Order.StopTrail, trailpercent=self.p.stop_sell_perc*0.001)
+            self.order = self.sell(exectype=bt.Order.StopTrail, trailpercent=self.p.sl*0.001)
 
         elif self.sellsig and not self.position:
 
             self.log('SELL CREATE, %.2f' % self.dataclose[0])
             self.order = self.sell()
-            self.order = self.buy(exectype=bt.Order.StopTrail, trailpercent=self.p.stop_buy_perc*0.001)
+            self.order = self.buy(exectype=bt.Order.StopTrail, trailpercent=self.p.sl*0.001)
 
         elif self.buysig and self.position:
 
