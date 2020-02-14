@@ -1,28 +1,25 @@
 import backtrader as bt
 import backtrader.feeds as btfeeds
-import os
 import datetime
 import time
 from sizers import PercentSizer
 import strategies
-import extensions as ex
 import results_function as rf
 from pathlib import Path
 
 startcash = 1000
-trading_pair = 'BTCUSDT'
-strat = MaCross
+trading_pair = 'BNBUSDT'
+strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 pnl_results = False
 sqn_results = True
-sig_or_risk = False                 # True if optimising signal params, False if optimising stoploss/size params
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 30)
 
 ### optimisation params
 ma = (1, 1000)
 sl = (1, 100)
-size = (20, 40, 60, 80, 99)
+pos_size = 25
 
 cerebro = bt.Cerebro(
     stdstats=False,
@@ -33,15 +30,10 @@ cerebro = bt.Cerebro(
 
 t_start = time.perf_counter()
 
-if sig_or_risk:
-    cerebro.optstrategy(strat,
-                        ma_periods = range(ma[0], ma[1]),
-                        start=t_start)
-else:
-    cerebro.optstrategy(strat,
-                        sl=range(sl[0], sl[1]),
-                        size=range(size[0], size[1]),
-                        start=t_start)
+cerebro.optstrategy(strat,
+                    ma_periods = range(ma[0], ma[1]),
+                    vol_mult=range(sl[0], sl[1]),
+                    start=t_start)
 
 
 datapath = Path(f'Z:/Data/{trading_pair}-1m-data.csv')
@@ -57,31 +49,34 @@ data = btfeeds.GenericCSVData(
     compression=1
 )
 
-if sig_or_risk:
-    rt = ma[1] - ma[0]
-else:
-    rt = (sl[1] - sl[0]) * len(size)
+rt = (ma[1] - ma[0]) * (sl[1] - sl[0])
 run_counter = 0
 def cb(MaCross):
     global run_counter
     global t_start
     global rt
     run_counter += 1
-    if run_counter%10 == 0:
+    if run_counter%25 == 0:
         t_elapsed = time.perf_counter()
         elapsed = t_elapsed - t_start
+        est_tot = ((rt / run_counter) * elapsed)
+        est_rem = est_tot - elapsed
         hours = elapsed // 3600
         minutes = elapsed // 60
-        print(f'Runs completed: {run_counter}/{rt}, Time elapsed:{int(hours)}h {int(minutes % 60)}m')
-        print(f'Estimated time left:{((rt/run_counter)*elapsed)//3600}h {(((rt/run_counter)*elapsed)//60) % 60}m')
+        print(f'Runs completed: {run_counter}/{rt}')
+        print(f'Time elapsed:{int(hours)}h {int(minutes % 60)}m')
+        if est_rem//3600 == 0:
+            print(f'Estimated time left:{int(est_rem // 60)}m')
+        else:
+            print(f'Estimated time left:{int(est_rem//3600)}h {int((est_rem//60) % 60)}m')
         print('-')
 
 cerebro.adddata(data)
 cerebro.broker.setcash(startcash)
 cerebro.addsizer(PercentSizer)
-PercentSizer.params.percents = size
 cerebro.broker.setcommission(commission=0.00075)
 cerebro.optcallback(cb)
+PercentSizer.params.percents = pos_size
 
 if pnl_results:
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
@@ -96,13 +91,13 @@ if __name__ == '__main__':
     opt_runs = cerebro.run()
     
     a = strat.params.ma_periods
-    b = strat.params.stop_loss_perc
+    b = strat.params.vol_mult
     c = strat.params.pos_size
     
-    if signal_or_sl:
-        rf.array_func_sroc(opt_runs, s_n, trading_pair, a, b, c, pnl_results, sqn_results, start_date, end_date)
+    if sig_or_risk:
+        rf.array_func_signal(opt_runs, s_n, trading_pair, ma, b, c, pnl_results, sqn_results, start_date, end_date)
     else:
-        rf.array_func_sl(opt_runs, s_n, trading_pair, a, b, c, pnl_results, sqn_results, start_date, end_date)
+        rf.array_func_risk(opt_runs, s_n, trading_pair, a, sl, pos_size, pnl_results, sqn_results, start_date, end_date)
     
     t_end = time.perf_counter()
     t = t_end - t_start
@@ -111,4 +106,4 @@ if __name__ == '__main__':
     if int(hours) >0:
         print(f'Time elapsed:{int(hours)}h {int(minutes%60)}m')
     else:
-        print(f'{int(minutes)}m')
+        print(f'Time elapsed:{int(minutes)}m')

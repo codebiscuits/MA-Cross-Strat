@@ -1,12 +1,11 @@
 import backtrader as bt
-import time
 
 class MaCross(bt.Strategy):
 
     params = (
         ('strat_name', 'macross'),
-        ('ma_periods', 9),
-        ('boll_dev', 2),
+        ('ma_periods', 60),
+        ('vol_mult', 1),
         ('pos_size', 99),
         ('start', 0),
         ('debug', False),
@@ -25,9 +24,11 @@ class MaCross(bt.Strategy):
 
         self.ema = bt.ind.EMA(self.data.close, period=self.params.ma_periods)
         self.sma = bt.ind.SMA(self.data.close, period=self.params.ma_periods)
-        self.boll = bt.ind.BollingerBands(self.data.close, period=self.params.ma_periods, devfactor=self.params.boll_dev)
+        self.roc = bt.ind.ROC(self.data.close, period=1)
+        self.volatil = bt.ind.StdDev(self.roc, period=self.params.ma_periods)
         self.buysig = bt.ind.CrossOver(self.ema, self.sma)
         self.sellsig = bt.ind.CrossOver(self.sma, self.ema)
+        self.stop_band = self.params.vol_mult * self.volatil * 0.01
         
     
     def notify_order(self, order):
@@ -75,13 +76,13 @@ class MaCross(bt.Strategy):
 
             self.log('BUY CREATE, %.2f' % self.dataclose[0])
             self.order = self.buy()
-            self.order = self.sell(exectype=bt.Order.StopTrail, trailpercent=self.p.sl*0.001)
+            self.order = self.sell(exectype=bt.Order.StopTrail, trailpercent=self.stop_band)
 
         elif self.sellsig and not self.position:
 
             self.log('SELL CREATE, %.2f' % self.dataclose[0])
             self.order = self.sell()
-            self.order = self.buy(exectype=bt.Order.StopTrail, trailpercent=self.p.sl*0.001)
+            self.order = self.buy(exectype=bt.Order.StopTrail, trailpercent=self.stop_band)
 
         elif self.buysig and self.position:
 
@@ -89,7 +90,7 @@ class MaCross(bt.Strategy):
                 self.log('BUY CREATE, %.2f' % self.dataclose[0])
                 self.order = self.close()
                 self.order = self.buy()
-                self.order = self.sell(exectype=bt.Order.StopTrail, trailpercent=self.p.stop_sell_perc*0.001)
+                self.order = self.sell(exectype=bt.Order.StopTrail, trailpercent=self.stop_band)
 
         elif self.sellsig and self.position:
 
@@ -97,4 +98,4 @@ class MaCross(bt.Strategy):
                 self.log('SELL CREATE, %.2f' % self.dataclose[0])
                 self.order = self.close()
                 self.order = self.sell()
-                self.order = self.buy(exectype=bt.Order.StopTrail, trailpercent=self.p.stop_buy_perc*0.001)
+                self.order = self.buy(exectype=bt.Order.StopTrail, trailpercent=self.stop_band)
