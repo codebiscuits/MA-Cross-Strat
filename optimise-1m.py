@@ -17,8 +17,8 @@ start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 30)
 
 ### optimisation params
-ma = (1, 1000)
-sl = (1, 100)
+ma = (1, 101)
+sl = (1, 101)
 pos_size = 25
 
 cerebro = bt.Cerebro(
@@ -56,20 +56,24 @@ def cb(MaCross):
     global t_start
     global rt
     run_counter += 1
-    if run_counter%25 == 0:
+    if run_counter%(rt/100) == 0:
         t_elapsed = time.perf_counter()
         elapsed = t_elapsed - t_start
         est_tot = ((rt / run_counter) * elapsed)
         est_rem = est_tot - elapsed
         hours = elapsed // 3600
         minutes = elapsed // 60
-        print(f'Runs completed: {run_counter}/{rt}')
-        print(f'Time elapsed:{int(hours)}h {int(minutes % 60)}m')
-        if est_rem//3600 == 0:
-            print(f'Estimated time left:{int(est_rem // 60)}m')
-        else:
-            print(f'Estimated time left:{int(est_rem//3600)}h {int((est_rem//60) % 60)}m')
         print('-')
+        # print(f'Runs completed: {run_counter}/{rt}')
+        print(f'{run_counter/(rt/100)}% Complete')
+        if hours == 0:
+            print(f'Time elapsed: {int(minutes % 60)}m')
+        else:
+            print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
+        if est_rem//3600 == 0:
+            print(f'Estimated time left: {int(est_rem // 60)}m')
+        else:
+            print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
 
 cerebro.adddata(data)
 cerebro.broker.setcash(startcash)
@@ -90,20 +94,16 @@ if __name__ == '__main__':
 
     opt_runs = cerebro.run()
     
-    a = strat.params.ma_periods
-    b = strat.params.vol_mult
-    c = strat.params.pos_size
+    a = strat.params.pos_size
     
-    if sig_or_risk:
-        rf.array_func_signal(opt_runs, s_n, trading_pair, ma, b, c, pnl_results, sqn_results, start_date, end_date)
-    else:
-        rf.array_func_risk(opt_runs, s_n, trading_pair, a, sl, pos_size, pnl_results, sqn_results, start_date, end_date)
-    
+    print('-')
+    rf.array_func(opt_runs, s_n, trading_pair, ma, sl, a, pnl_results, sqn_results, start_date, end_date)
+
     t_end = time.perf_counter()
     t = t_end - t_start
     hours = t // 3600
     minutes = t // 60
     if int(hours) >0:
-        print(f'Time elapsed:{int(hours)}h {int(minutes%60)}m')
+        print(f'Time elapsed: {int(hours)}h {int(minutes%60)}m')
     else:
-        print(f'Time elapsed:{int(minutes)}m')
+        print(f'Time elapsed: {int(minutes)}m')
