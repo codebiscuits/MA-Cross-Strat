@@ -10,13 +10,15 @@ startcash = 1000
 trading_pair = 'BNBUSDT'
 strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-ma = 50
-mult = 10
+ma = 2000
+mult = 50
 pos_size = 99
 pnl_results = True
-sqn_results = False
+sqn_results = True
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 30)
+
+t_start = time.perf_counter()
 
 cerebro = bt.Cerebro(
     stdstats=False,
@@ -24,8 +26,6 @@ cerebro = bt.Cerebro(
     optdatas=True,
     # exactbars=True            # This was the cause of the 'deque index out of range' issue
 )
-
-t_start = time.perf_counter()
 
 cerebro.addstrategy(strat, ma_periods=ma, vol_mult=mult, start=t_start)
 
@@ -69,13 +69,19 @@ if __name__ == '__main__':
         # pnl_value = pnl_result.get(['pnl']['net']['average'])
         sqn_value = sqn_result.get('sqn')
 
+    endcash = cerebro.broker.getvalue()
+    pnl_tot = ((endcash-startcash)/startcash)*100
+    print('-')
     print(f'Starting Balance: {startcash}')
-    print('Final Balance: %.2f' % cerebro.broker.getvalue())
+    print(f'Final Balance: {endcash:.2f}')
+    print('-')
+    print(f'Net PnL: {pnl_tot:.2f}%')
     if pnl_results:
-        print(f'PNL Average: {pnl_value}')
+        print(f'Avg Trade PnL: {pnl_value:.2f}%')
     if sqn_results:
         print(f'SQN Score: {sqn_value:.1f}')
     
+    print('-')
     t_end = time.perf_counter()
     t = t_end - t_start
     hours = t // 3600

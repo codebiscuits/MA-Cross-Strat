@@ -99,6 +99,7 @@ if __name__ == '__main__':
     print('-')
     rf.array_func(opt_runs, s_n, trading_pair, ma, sl, a, pnl_results, sqn_results, start_date, end_date)
 
+    print('-')
     t_end = time.perf_counter()
     t = t_end - t_start
     hours = t // 3600
