@@ -11,13 +11,13 @@ startcash = 1000
 trading_pair = 'BNBUSDT'
 strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-pnl_results = False
+pnl_results = True
 sqn_results = True
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 30)
 
 ### optimisation params
-ma = (1, 101)
+ma = (1, 1001)
 sl = (1, 101)
 pos_size = 25
 
@@ -103,7 +103,9 @@ if __name__ == '__main__':
     t = t_end - t_start
     hours = t // 3600
     minutes = t // 60
-    if int(hours) >0:
-        print(f'Time elapsed: {int(hours)}h {int(minutes%60)}m')
+    if int(hours) > 0:
+        print(f'Time elapsed:{int(hours)}h {int(minutes % 60)}m')
+    elif int(minutes) > 0:
+        print(f'{int(minutes)}m')
     else:
-        print(f'Time elapsed: {int(minutes)}m')
+        print(f'Time elapsed: {int(t)}s')

@@ -55,15 +55,18 @@ def array_func(opt_runs, s_n, trading_pair, ma, sl, size, pnl_res, sqn_res, star
 
     if pnl_res:
         ### initialise an array for ta stats
-        pnl_array = np.zeros((range))
+        pnl_array = np.zeros((range_a, range_b))
 
         for run in opt_runs:
             for strategy in run:
                 period_a = strategy.params.ma_periods - ma[0]
                 period_b = strategy.params.vol_mult - sl[0]
-                pnl_value = strategy.analyzers.ta.get_analysis()['pnl']['net']['average']
+                pnl_results = strategy.analyzers.ta.get_analysis()
+                pnl_pnl = pnl_results.get('pnl')
+                pnl_net = pnl_pnl.get('net')
+                pnl_avg = pnl_net.get('average')
                 ### store all pnl scores from backtests in a numpy array
-                pnl_array[period] = pnl_value
+                pnl_array[period_a][period_b] = pnl_avg
 
         ### save the array for future recall
         if not os.path.isdir(Path(f'Z:/results')):  # checks that the relevant folder exists
