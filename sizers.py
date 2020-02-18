@@ -8,7 +8,7 @@ class PercentSizer(bt.Sizer):
     '''
 
     params = (
-        ('percents', 99),
+        ('percents', 25),
         ('retint', False),  # return an int size or rather the float value
     )
 

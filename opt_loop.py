@@ -34,8 +34,8 @@ def opt_loop(pair):
     end_date = datetime.datetime(2020, 1, 30)
 
     ### optimisation params
-    ma = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
-    sl = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
+    ma = (1, 1001) # when testing, use (100, 103) or higher to avoid empty autodict error
+    sl = (1, 101) # when testing, use (100, 103) or higher to avoid empty autodict error
     pos_size = 25
 
     cerebro = bt.Cerebro(

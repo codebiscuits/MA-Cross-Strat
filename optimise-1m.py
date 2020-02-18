@@ -8,13 +8,13 @@ import results_function as rf
 from pathlib import Path
 
 startcash = 1000
-trading_pair = 'BNBUSDT'
+trading_pair = 'ETHUSDT'
 strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 pnl_results = True
 sqn_results = True
 start_date = datetime.datetime(2020, 1, 1)
-end_date = datetime.datetime(2020, 1, 30)
+end_date = datetime.datetime(2020, 1, 31)
 
 ### optimisation params
 ma = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
@@ -56,7 +56,7 @@ def cb(MaCross):
     global t_start
     global rt
     run_counter += 1
-    if run_counter%(rt/100) == 0:
+    if run_counter % (rt / 100) == 0:
         t_elapsed = time.perf_counter()
         elapsed = t_elapsed - t_start
         est_tot = ((rt / run_counter) * elapsed)
@@ -65,7 +65,7 @@ def cb(MaCross):
         minutes = elapsed // 60
         print('-')
         # print(f'Runs completed: {run_counter}/{rt}')
-        print(f'{run_counter/(rt/100)}% Complete')
+        print(f'{int(run_counter/(rt/100))}% Complete')
         if hours == 0:
             print(f'Time elapsed: {int(minutes % 60)}m')
         else:
@@ -75,12 +75,13 @@ def cb(MaCross):
         else:
             print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
 
+PercentSizer.params.percents = pos_size
+
 cerebro.adddata(data)
 cerebro.broker.setcash(startcash)
 cerebro.addsizer(PercentSizer)
 cerebro.broker.setcommission(commission=0.00075)
 cerebro.optcallback(cb)
-PercentSizer.params.percents = pos_size
 
 if pnl_results:
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
