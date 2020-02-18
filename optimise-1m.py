@@ -17,8 +17,8 @@ start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 30)
 
 ### optimisation params
-ma = (1, 1001)
-sl = (1, 101)
+ma = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
+sl = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
 pos_size = 25
 
 cerebro = bt.Cerebro(
