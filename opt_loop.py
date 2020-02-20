@@ -31,12 +31,12 @@ def opt_loop(pair):
     pnl_results = True
     sqn_results = True
     start_date = datetime.datetime(2020, 1, 1)
-    end_date = datetime.datetime(2020, 1, 30)
+    end_date = datetime.datetime(2020, 1, 31)
 
     ### optimisation params
-    ma = (1, 1001) # when testing, use (100, 103) or higher to avoid empty autodict error
-    sl = (1, 101) # when testing, use (100, 103) or higher to avoid empty autodict error
-    pos_size = 25
+    ma = (101, 111) # when testing, use (101, 103) or higher to avoid empty autodict error
+    sl = (101, 111) # when testing, use (101, 103) or higher to avoid empty autodict error
+    PercentSizer.params.percents = 25
 
     cerebro = bt.Cerebro(
         stdstats=False,
@@ -96,8 +96,7 @@ def opt_loop(pair):
     cerebro.broker.setcash(startcash)
     cerebro.addsizer(PercentSizer)
     cerebro.broker.setcommission(commission=0.00075)
-    # cerebro.optcallback(cb)
-    PercentSizer.params.percents = pos_size
+    # cerebro.optcallback(cb)                               # TODO work out why cb can't be pickled in opt_loop
 
     if pnl_results:
         cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')

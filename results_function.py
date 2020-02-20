@@ -44,7 +44,11 @@ def array_func(opt_runs, s_n, trading_pair, ma, sl, size, pnl_res, sqn_res, star
         if not os.path.isdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/sqn')):  # checks that the relevant folder exists
             os.mkdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/sqn'))  # creates the folder if it doesn't
 
-        np.save(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/sqn/{trading_pair}_1m.npy'), sqn_array)
+        try:
+            np.save(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/sqn/{trading_pair}_1m.npy'), sqn_array)
+        except:
+            np.save(Path(f'results/{s_n}/{range_str}/size-{size}/{date_range}/sqn/{trading_pair}_1m.npy'), sqn_array)
+            print('Could not access NAS, results saved locally.')
 
         ### find index of result with highest score
         max = np.amax(sqn_array)
@@ -82,7 +86,11 @@ def array_func(opt_runs, s_n, trading_pair, ma, sl, size, pnl_res, sqn_res, star
         if not os.path.isdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/pnl')):  # checks that the relevant folder exists
             os.mkdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/pnl'))  # creates the folder if it doesn't
 
-        np.save(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/pnl/{trading_pair}_1m.npy'), pnl_array)
+        try:
+            np.save(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/pnl/{trading_pair}_1m.npy'), pnl_array)
+        except:
+            np.save(Path(f'results/{s_n}/{range_str}/size-{size}/{date_range}/pnl/{trading_pair}_1m.npy'), pnl_array)
+            print('Could not access NAS, results saved locally.')
 
         ### find index of result with highest score
         max = np.amax(pnl_array)
