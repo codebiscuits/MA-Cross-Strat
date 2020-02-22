@@ -8,7 +8,7 @@ import results_function as rf
 from pathlib import Path
 
 startcash = 1000
-trading_pair = 'ETHUSDT'
+trading_pair = 'BTCUSDT'
 strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 pnl_results = True
@@ -17,8 +17,9 @@ start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 31)
 
 ### optimisation params
-ma = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
-sl = (100, 103) # for testing, use (100, 103) or higher to avoid empty autodict error
+ma = (1, 2001) # for testing, use (100, 103) or higher to avoid empty autodict error
+sl = (1, 201) # for testing, use (100, 103) or higher to avoid empty autodict error
+step_size = 5
 pos_size = 25
 
 cerebro = bt.Cerebro(
@@ -31,8 +32,8 @@ cerebro = bt.Cerebro(
 t_start = time.perf_counter()
 
 cerebro.optstrategy(strat,
-                    ma_periods = range(ma[0], ma[1]),
-                    vol_mult=range(sl[0], sl[1]),
+                    ma_periods = range(ma[0], ma[1], step_size),
+                    vol_mult=range(sl[0], sl[1], step_size),
                     start=t_start)
 
 
@@ -49,7 +50,7 @@ data = btfeeds.GenericCSVData(
     compression=1
 )
 
-rt = (ma[1] - ma[0]) * (sl[1] - sl[0])
+rt = ((ma[1] - ma[0])/step_size) * ((sl[1] - sl[0])/step_size)
 run_counter = 0
 def cb(MaCross):
     global run_counter
@@ -95,10 +96,8 @@ if __name__ == '__main__':
 
     opt_runs = cerebro.run()
     
-    a = strat.params.pos_size
-    
     print('-')
-    rf.array_func(opt_runs, s_n, trading_pair, ma, sl, a, pnl_results, sqn_results, start_date, end_date)
+    rf.array_func(opt_runs, s_n, trading_pair, ma, sl, pos_size, step_size, pnl_results, sqn_results, start_date, end_date)
 
     print('-')
     t_end = time.perf_counter()

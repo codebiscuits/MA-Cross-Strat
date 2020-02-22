@@ -7,7 +7,7 @@ import strategies
 from pathlib import Path
 
 startcash = 1000
-trading_pair = 'BNBUSDT'
+trading_pair = 'BTCUSDT'
 strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 ma = 2000

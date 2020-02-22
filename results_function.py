@@ -2,14 +2,14 @@ import os
 import numpy as np
 from pathlib import Path
 
-def array_func(opt_runs, s_n, trading_pair, ma, sl, size, pnl_res, sqn_res, start, end):
+def array_func(opt_runs, s_n, trading_pair, ma, sl, size, step_size, pnl_res, sqn_res, start, end):
 
     '''function to create a numpy array of appropriate size and populate it with results from the strategy object,
         then save the array with a procedurally generated path and filename'''
 
     range_a = ma[1] - ma[0]
     range_b = sl[1] - sl[0]
-    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}'
+    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_step{step_size}'
 
     start_date = str(start)
     end_date = str(end)
