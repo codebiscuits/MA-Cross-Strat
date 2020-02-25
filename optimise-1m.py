@@ -4,15 +4,13 @@ import datetime
 import time
 from sizers import PercentSizer
 import strategies
-import results_function as rf
+import results_function_df as rf
 from pathlib import Path
 
 startcash = 1000
 trading_pair = 'BTCUSDT'
 strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-pnl_results = True
-sqn_results = True
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 31)
 
@@ -84,10 +82,8 @@ cerebro.addsizer(PercentSizer)
 cerebro.broker.setcommission(commission=0.00075)
 cerebro.optcallback(cb)
 
-if pnl_results:
-    cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
-if sqn_results:
-    cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
+cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
+cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
 
 if __name__ == '__main__':
@@ -95,9 +91,12 @@ if __name__ == '__main__':
     print(f'Running {trading_pair} tests')
 
     opt_runs = cerebro.run()
+
+    start = str(start_date)
+    end = str(end_date)
     
     print('-')
-    rf.array_func(opt_runs, s_n, trading_pair, ma, sl, pos_size, step_size, pnl_results, sqn_results, start_date, end_date)
+    rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size)
 
     print('-')
     t_end = time.perf_counter()
