@@ -18,8 +18,8 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size)
 
     for run in opt_runs:
         for strategy in run:
-            period_a = strategy.params.ma_periods - ma[0]
-            period_b = strategy.params.vol_mult - sl[0]
+            period_a = strategy.params.ma_periods
+            period_b = strategy.params.vol_mult
             sqn_result = strategy.analyzers.sqn.get_analysis()
             sqn_value = round(sqn_result.get('sqn'), 2)
             try:
@@ -71,11 +71,4 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size)
         df.to_csv(Path(f'results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_1m.csv'))
         print('Could not access NAS, results saved locally.')
 
-    ### find index of result with highest score
-    # max = np.amax(sqn_array)
-    # ind_max = np.argwhere(sqn_array == max)
-    # avg = np.mean(sqn_array)
-    #
-    # print(f'Best SQN score: {max:.1f}, settings: {ind_max[0][0] + ma[0]}, {ind_max[0][1] + sl[0]}.\nMean SQN score for all settings: {avg:.2f}')
-
-    print(df)
+    print(df.head())
