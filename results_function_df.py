@@ -22,24 +22,34 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size)
             period_b = strategy.params.vol_mult - sl[0]
             sqn_result = strategy.analyzers.sqn.get_analysis()
             sqn_value = round(sqn_result.get('sqn'), 2)
-            pnl_results = strategy.analyzers.ta.get_analysis()
-            pnl_net = round((pnl_results.get('pnl'))['net']['total'], 2)
-            pnl_avg = (pnl_results.get('pnl'))['net']['average']
-            total_open = (pnl_results.get('total'))['open']
-            total_closed = (pnl_results.get('total'))['closed']
-            total_won = (pnl_results.get('won'))['total']
-            total_lost = (pnl_results.get('lost'))['total']
-            strike_rate = round((total_won / total_closed) * 100)
+            try:
+                pnl_results = strategy.analyzers.ta.get_analysis()
+                pnl_net = round((pnl_results.get('pnl'))['net']['total'], 2)
+                pnl_avg = (pnl_results.get('pnl'))['net']['average']
+                total_open = (pnl_results.get('total'))['open']
+                total_closed = (pnl_results.get('total'))['closed']
+                total_won = (pnl_results.get('won'))['total']
+                total_lost = (pnl_results.get('lost'))['total']
+                strike_rate = round((total_won / total_closed) * 100)
+            except TypeError:
+                pnl_net = 0
+                pnl_avg = 0
+                total_open = 0
+                total_closed = 0
+                total_won = 0
+                total_lost = 0
+                strike_rate = 0
             df_list.append([period_a, period_b,
                             sqn_value, strike_rate,
                             pnl_avg, pnl_net,
                             total_open, total_closed, total_won, total_lost])
-            print(df_list)
-            df = pd.DataFrame(df_list,
-                           columns=['ma', 'risk',
-                                    'sqn', 'strike_rate',
-                                    'pnl_avg', 'pnl_net',
-                                    'total_open', 'total_closed', 'total_won', 'total_lost'])
+
+    ### more efficient to build a list of lists and then turn that into a dataframe, rather than build the dataframe iteratively
+    df = pd.DataFrame(df_list,
+                   columns=['ma', 'risk',
+                            'sqn', 'strike_rate',
+                            'pnl_avg', 'pnl_net',
+                            'total_open', 'total_closed', 'total_won', 'total_lost'])
 
 
 
@@ -67,3 +77,5 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size)
     # avg = np.mean(sqn_array)
     #
     # print(f'Best SQN score: {max:.1f}, settings: {ind_max[0][0] + ma[0]}, {ind_max[0][1] + sl[0]}.\nMean SQN score for all settings: {avg:.2f}')
+
+    print(df)

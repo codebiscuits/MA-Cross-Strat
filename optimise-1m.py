@@ -15,8 +15,8 @@ start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 31)
 
 ### optimisation params
-ma = (1, 2001) # for testing, use (100, 103) or higher to avoid empty autodict error
-sl = (1, 201) # for testing, use (100, 103) or higher to avoid empty autodict error
+ma = (1, 2001)
+sl = (1, 201)
 step_size = 5
 pos_size = 25
 
