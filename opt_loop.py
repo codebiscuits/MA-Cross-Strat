@@ -4,7 +4,7 @@ import datetime
 import time
 from sizers import PercentSizer
 import strategies
-import results_function as rf
+import results_function_df as rf
 from pathlib import Path
 from binance.client import Client
 import keys
@@ -28,14 +28,12 @@ def opt_loop(pair):
     trading_pair = pair
     strat = strategies.MaCross
     s_n = strat.params.strat_name  # name of current strategy as a string for generating filenames etc
-    pnl_results = True
-    sqn_results = True
     start_date = datetime.datetime(2020, 1, 1)
     end_date = datetime.datetime(2020, 1, 31)
 
     ### optimisation params
-    ma = (1, 2001)  # for testing, use (100, 103) or higher to avoid empty autodict error
-    sl = (1, 201)  # for testing, use (100, 103) or higher to avoid empty autodict error
+    ma = (1, 2001)
+    sl = (1, 201)
     step_size = 5
     pos_size = 25
 
@@ -69,29 +67,29 @@ def opt_loop(pair):
     rt = ((ma[1] - ma[0]) / step_size) * ((sl[1] - sl[0]) / step_size)
     run_counter = 0
 
-    def cb(MaCross):
-        global run_counter
-        global t_start
-        global rt
-        run_counter += 1
-        if run_counter % (rt / 100) == 0:
-            t_elapsed = time.perf_counter()
-            elapsed = t_elapsed - t_start
-            est_tot = ((rt / run_counter) * elapsed)
-            est_rem = est_tot - elapsed
-            hours = elapsed // 3600
-            minutes = elapsed // 60
-            print('-')
-            # print(f'Runs completed: {run_counter}/{rt}')
-            print(f'{int(run_counter / (rt / 100))}% Complete')
-            if hours == 0:
-                print(f'Time elapsed: {int(minutes % 60)}m')
-            else:
-                print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
-            if est_rem // 3600 == 0:
-                print(f'Estimated time left: {int(est_rem // 60)}m')
-            else:
-                print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
+    # def cb(MaCross):
+    #     global run_counter
+    #     global t_start
+    #     global rt
+    #     run_counter += 1
+    #     if run_counter % (rt / 100) == 0:
+    #         t_elapsed = time.perf_counter()
+    #         elapsed = t_elapsed - t_start
+    #         est_tot = ((rt / run_counter) * elapsed)
+    #         est_rem = est_tot - elapsed
+    #         hours = elapsed // 3600
+    #         minutes = elapsed // 60
+    #         print('-')
+    #         # print(f'Runs completed: {run_counter}/{rt}')
+    #         print(f'{int(run_counter / (rt / 100))}% Complete')
+    #         if hours == 0:
+    #             print(f'Time elapsed: {int(minutes % 60)}m')
+    #         else:
+    #             print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
+    #         if est_rem // 3600 == 0:
+    #             print(f'Estimated time left: {int(est_rem // 60)}m')
+    #         else:
+    #             print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
 
     PercentSizer.params.percents = pos_size
 
@@ -101,10 +99,8 @@ def opt_loop(pair):
     cerebro.broker.setcommission(commission=0.00075)
     # cerebro.optcallback(cb)
 
-    if pnl_results:
-        cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
-    if sqn_results:
-        cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
+    cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
+    cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
     if __name__ == '__main__':
 
@@ -112,9 +108,11 @@ def opt_loop(pair):
 
         opt_runs = cerebro.run()
 
+        start = str(start_date)
+        end = str(end_date)
+
         print('-')
-        rf.array_func(opt_runs, s_n, trading_pair, ma, sl, pos_size, step_size, pnl_results, sqn_results, start_date,
-                      end_date)
+        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size)
 
         print('-')
         t_end = time.perf_counter()
