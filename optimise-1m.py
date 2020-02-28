@@ -9,15 +9,15 @@ from pathlib import Path
 
 startcash = 1000
 trading_pair = 'BTCUSDT'
-strat = strategies.MaCross
+strat = strategies.MaCrossRSI
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 31)
 
 ### optimisation params
-ma = (2, 2002)
+ma = (2, 4002)
 sl = (0, 400)
-step_size = 5
+step_size = 10
 pos_size = 25
 
 cerebro = bt.Cerebro(
