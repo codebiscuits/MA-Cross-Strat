@@ -28,13 +28,14 @@ def opt_loop(pair):
     trading_pair = pair
     strat = strategies.MaCross
     s_n = strat.params.strat_name  # name of current strategy as a string for generating filenames etc
+    timescale = '5m'
     start_date = datetime.datetime(2020, 1, 1)
     end_date = datetime.datetime(2020, 1, 31)
 
     ### optimisation params
-    ma = (1, 2001)
-    sl = (1, 201)
-    step_size = 5
+    ma = (2, 1002)
+    sl = (0, 400)
+    step_size = 10
     pos_size = 25
 
     cerebro = bt.Cerebro(
@@ -51,7 +52,7 @@ def opt_loop(pair):
                         vol_mult=range(sl[0], sl[1], step_size),
                         start=t_start)
 
-    datapath = Path(f'Z:/Data/{trading_pair}-1m-data.csv')
+    datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
 
     # Create a data feed
     data = btfeeds.GenericCSVData(
@@ -64,32 +65,6 @@ def opt_loop(pair):
         compression=1
     )
 
-    rt = ((ma[1] - ma[0]) / step_size) * ((sl[1] - sl[0]) / step_size)
-    run_counter = 0
-
-    # def cb(MaCross):
-    #     global run_counter
-    #     global t_start
-    #     global rt
-    #     run_counter += 1
-    #     if run_counter % (rt / 100) == 0:
-    #         t_elapsed = time.perf_counter()
-    #         elapsed = t_elapsed - t_start
-    #         est_tot = ((rt / run_counter) * elapsed)
-    #         est_rem = est_tot - elapsed
-    #         hours = elapsed // 3600
-    #         minutes = elapsed // 60
-    #         print('-')
-    #         # print(f'Runs completed: {run_counter}/{rt}')
-    #         print(f'{int(run_counter / (rt / 100))}% Complete')
-    #         if hours == 0:
-    #             print(f'Time elapsed: {int(minutes % 60)}m')
-    #         else:
-    #             print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
-    #         if est_rem // 3600 == 0:
-    #             print(f'Estimated time left: {int(est_rem // 60)}m')
-    #         else:
-    #             print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
 
     PercentSizer.params.percents = pos_size
 
@@ -97,8 +72,6 @@ def opt_loop(pair):
     cerebro.broker.setcash(startcash)
     cerebro.addsizer(PercentSizer)
     cerebro.broker.setcommission(commission=0.00075)
-    # cerebro.optcallback(cb)
-
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
     cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
@@ -112,7 +85,7 @@ def opt_loop(pair):
         end = str(end_date)
 
         print('-')
-        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size)
+        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size, timescale)
 
         print('-')
         t_end = time.perf_counter()

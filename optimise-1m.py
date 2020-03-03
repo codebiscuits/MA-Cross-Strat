@@ -9,13 +9,14 @@ from pathlib import Path
 
 startcash = 1000
 trading_pair = 'BTCUSDT'
-strat = strategies.MaCrossRSI
+strat = strategies.MaCross
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
+timescale = '5m'
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 31)
 
 ### optimisation params
-ma = (2, 4002)
+ma = (2, 1002)
 sl = (0, 400)
 step_size = 10
 pos_size = 25
@@ -35,7 +36,7 @@ cerebro.optstrategy(strat,
                     start=t_start)
 
 
-datapath = Path(f'Z:/Data/{trading_pair}-1m-data.csv')
+datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
 
 # Create a data feed
 data = btfeeds.GenericCSVData(
@@ -96,7 +97,7 @@ if __name__ == '__main__':
     end = str(end_date)
     
     print('-')
-    rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size)
+    rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size, timescale)
 
     print('-')
     t_end = time.perf_counter()

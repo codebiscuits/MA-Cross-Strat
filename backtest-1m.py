@@ -15,6 +15,7 @@ mult = 50
 pos_size = 99
 pnl_results = True
 sqn_results = True
+timescale = '1m'
 start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 1, 30)
 
@@ -30,7 +31,7 @@ cerebro = bt.Cerebro(
 cerebro.addstrategy(strat, ma_periods=ma, vol_mult=mult, start=t_start)
 
 
-datapath = Path(f'Z:/Data/{trading_pair}-1m-data.csv')
+datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
 
 # Create a data feed
 data = btfeeds.GenericCSVData(

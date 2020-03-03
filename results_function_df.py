@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from pathlib import Path
 
-def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size):
+def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size, timescale):
 
     '''function to create a numpy array of appropriate size and populate it with results from the strategy object,
         then save the array with a procedurally generated path and filename'''
@@ -66,9 +66,9 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size)
         os.mkdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}'))  # creates the folder if it doesn't
 
     try:
-        df.to_csv(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_1m.csv'))
+        df.to_csv(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_{timescale}.csv'))
     except:
-        df.to_csv(Path(f'results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_1m.csv'))
+        df.to_csv(Path(f'results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_{timescale}.csv'))
         print('Could not access NAS, results saved locally.')
 
     print(df.head())
