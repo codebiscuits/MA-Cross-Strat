@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     start = str(start_date)
     end = str(end_date)
-    
+
     print('-')
     rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size, timescale)
 

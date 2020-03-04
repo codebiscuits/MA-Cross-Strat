@@ -58,17 +58,19 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size,
         os.mkdir(Path(f'Z:/results'))  # creates the folder if it doesn't
     if not os.path.isdir(Path(f'Z:/results/{s_n}')):  # checks that the relevant folder exists
         os.mkdir(Path(f'Z:/results/{s_n}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{range_str}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{range_str}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}'))  # creates the folder if it doesn't
 
     try:
-        df.to_csv(Path(f'Z:/results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_{timescale}.csv'))
+        df.to_csv(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}/{trading_pair}.csv'))
     except:
-        df.to_csv(Path(f'results/{s_n}/{range_str}/size-{size}/{date_range}/{trading_pair}_{timescale}.csv'))
+        df.to_csv(Path(f'results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}/{trading_pair}.csv'))
         print('Could not access NAS, results saved locally.')
 
-    print(df.head())
+    # print(df.head())
