@@ -21,19 +21,22 @@ def get_pairs(quote):
             if not (item['symbol'] in ['PAXUSDT', 'USDSBUSDT', 'BCHSVUSDT', 'BCHABCUSDT', 'VENUSDT', 'TUSDUSDT', 'USDCUSDT', 'USDSUSDT', 'BUSDUSDT', 'EURUSDT', 'BCCUSDT', 'IOTAUSDT']):
                 pairs_list.append(item['symbol'])
 
+
+
     return pairs_list
 
 def opt_loop(pair):
 
     ### optimisation params
     trading_pair = pair
-    strat = strategies.MaCrossRoot
+    strat = strategies.MaCrossFrac
     s_n = strat.params.strat_name  # name of current strategy as a string for generating filenames etc
     timescale = '5m'
     start_date = datetime.datetime(2020, 1, 1)
     end_date = datetime.datetime(2020, 1, 31)
     ma = (2, 1202)
     risk = (200, 1800)
+    # divisor = (2, 20)
     step_size = 20
     pos_size = 25
     startcash = 1000
@@ -51,6 +54,7 @@ def opt_loop(pair):
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
                         vol_mult=range(risk[0], risk[1], step_size),
+                        # divisor=range(divisor[0], divisor[1], 2),
                         start=t_start)
 
     datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
@@ -86,7 +90,9 @@ def opt_loop(pair):
         end = str(end_date)
 
         print('-')
-        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk, pos_size, step_size, timescale)
+        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
+                      # divisor,
+                      pos_size, step_size, timescale)
 
         print('-')
         t_end = time.perf_counter()
@@ -100,6 +106,7 @@ def opt_loop(pair):
             print(f'{int(minutes)}m')
         else:
             print(f'Time elapsed: {int(t)}s')
+
 
 pairs = get_pairs('USDT')
 

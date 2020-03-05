@@ -2,12 +2,15 @@ import os
 import pandas as pd
 from pathlib import Path
 
-def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size, timescale):
+def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
+               # divisor,
+               size, step_size, timescale):
 
     '''function to create a numpy array of appropriate size and populate it with results from the strategy object,
         then save the array with a procedurally generated path and filename'''
 
-    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_step{step_size}'
+    # range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div{divisor[0]}-{divisor[1]}_step{step_size}'
+    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div10_step{step_size}'
 
     start_date = start
     end_date = end
@@ -20,6 +23,7 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size,
         for strategy in run:
             period_a = strategy.params.ma_periods
             period_b = strategy.params.vol_mult
+            divisor = strategy.params.divisor
             sqn_result = strategy.analyzers.sqn.get_analysis()
             sqn_value = round(sqn_result.get('sqn'), 2)
             try:
@@ -39,14 +43,14 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, size, step_size,
                 total_won = 0
                 total_lost = 0
                 strike_rate = 0
-            df_list.append([period_a, period_b,
+            df_list.append([period_a, period_b, divisor,
                             sqn_value, strike_rate,
                             pnl_avg, pnl_net,
                             total_open, total_closed, total_won, total_lost])
 
     ### more efficient to build a list of lists and then turn that into a dataframe, rather than build the dataframe iteratively
     df = pd.DataFrame(df_list,
-                   columns=['ma', 'risk',
+                   columns=['ma', 'risk', 'divisor',
                             'sqn', 'strike_rate',
                             'pnl_avg', 'pnl_net',
                             'total_open', 'total_closed', 'total_won', 'total_lost'])
