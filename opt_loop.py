@@ -34,9 +34,9 @@ def opt_loop(pair):
     timescale = '5m'
     start_date = datetime.datetime(2020, 1, 1)
     end_date = datetime.datetime(2020, 1, 31)
-    ma = (2, 1202)
-    risk = (200, 1800)
-    # divisor = (2, 20)
+    ma = (220, 420)
+    risk = (500, 1000)
+    divisor = (2, 20)
     step_size = 20
     pos_size = 25
     startcash = 1000
@@ -54,7 +54,7 @@ def opt_loop(pair):
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
                         vol_mult=range(risk[0], risk[1], step_size),
-                        # divisor=range(divisor[0], divisor[1], 2),
+                        divisor=range(divisor[0], divisor[1], 2),
                         start=t_start)
 
     datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
@@ -91,7 +91,7 @@ def opt_loop(pair):
 
         print('-')
         rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
-                      # divisor,
+                      divisor,
                       pos_size, step_size, timescale)
 
         print('-')
