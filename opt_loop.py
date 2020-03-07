@@ -9,6 +9,20 @@ from pathlib import Path
 from binance.client import Client
 import keys
 
+op = {  # optimisation params dictionary
+    'pair': 'BTCUSDT',
+    'strat': strategies.MaCrossFrac,
+    'timescale': '5m',
+    'start': datetime.datetime(2019, 12, 1),
+    'end': datetime.datetime(2020, 2, 29),
+    'ma': (10, 2010),
+    'risk': (200, 1800),
+    'div': (2, 20),
+    'step': 20,
+    'size': 25,
+    'cash': 1000
+}
+
 def get_pairs(quote):
     binance_client = Client(api_key=keys.Pkey, api_secret=keys.Skey)
     info = binance_client.get_exchange_info()
@@ -25,21 +39,21 @@ def get_pairs(quote):
 
     return pairs_list
 
-def opt_loop(pair):
+def opt_loop(pair, op):
 
     ### optimisation params
     trading_pair = pair
-    strat = strategies.MaCrossFrac
+    strat = op.get('strat')
     s_n = strat.params.strat_name  # name of current strategy as a string for generating filenames etc
-    timescale = '5m'
-    start_date = datetime.datetime(2020, 1, 1)
-    end_date = datetime.datetime(2020, 1, 31)
-    ma = (220, 420)
-    risk = (500, 1000)
-    divisor = (2, 20)
-    step_size = 20
-    pos_size = 25
-    startcash = 1000
+    timescale = op.get('timescale')
+    start_date = op.get('start')
+    end_date = op.get('end')
+    ma = op.get('ma')
+    risk = op.get('risk')
+    divisor = op.get('div')
+    step_size = op.get('step')
+    pos_size = op.get('size')
+    startcash = op.get('cash')
 
 
     cerebro = bt.Cerebro(
@@ -54,7 +68,7 @@ def opt_loop(pair):
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
                         vol_mult=range(risk[0], risk[1], step_size),
-                        divisor=range(divisor[0], divisor[1], 2),
+                        # divisor=range(divisor[0], divisor[1], 2),
                         start=t_start)
 
     datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
@@ -91,7 +105,7 @@ def opt_loop(pair):
 
         print('-')
         rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
-                      divisor,
+                      # divisor,
                       pos_size, step_size, timescale)
 
         print('-')
@@ -107,8 +121,14 @@ def opt_loop(pair):
         else:
             print(f'Time elapsed: {int(t)}s')
 
+pairs_list = get_pairs('USDT')
 
-pairs = get_pairs('USDT')
+params = (f'ma{op.get("ma")[0]}-{op.get("ma")[1]}_sl{op.get("risk")[0]}-{op.get("risk")[1]}_div10_step{op.get("step")}')
+folder = Path(f'Z:/results/{op.get("strat").params.strat_name}/{op.get("timescale")}/{params}/size-{op.get("size")}/{str(op.get("start"))[:10]}_{str(op.get("end"))[:10]}')
+
+files_list = list(folder.glob('*.csv'))
+done_list = [file.stem for file in files_list]
+pairs = [x for x in pairs_list if not x in done_list]
 
 for pair in pairs:
-    opt_loop(pair)
+    opt_loop(pair, op)

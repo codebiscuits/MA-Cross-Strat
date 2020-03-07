@@ -3,14 +3,14 @@ import pandas as pd
 from pathlib import Path
 
 def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
-               divisor,
+               # divisor,
                size, step_size, timescale):
 
     '''function to create a numpy array of appropriate size and populate it with results from the strategy object,
         then save the array with a procedurally generated path and filename'''
 
-    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div{divisor[0]}-{divisor[1]}_step{step_size}'
-    # range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div10_step{step_size}'
+    # range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div{divisor[0]}-{divisor[1]}_step{step_size}'
+    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div10_step{step_size}'
 
     start_date = start
     end_date = end
