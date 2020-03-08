@@ -12,11 +12,11 @@ import keys
 op = {  # optimisation params dictionary
     'pair': 'BTCUSDT',
     'strat': strategies.MaCrossFrac,
-    'timescale': '5m',
-    'start': datetime.datetime(2019, 12, 1),
-    'end': datetime.datetime(2020, 2, 29),
+    'timescale': '1m',
+    'start': datetime.datetime(2019, 1, 1),
+    'end': datetime.datetime(2020, 1, 31),
     'ma': (10, 2010),
-    'risk': (200, 1800),
+    'risk': (0, 1500),
     'div': (2, 20),
     'step': 20,
     'size': 25,
@@ -39,7 +39,7 @@ def get_pairs(quote):
 
     return pairs_list
 
-def opt_loop(pair, op):
+def optimise(pair, op, loop):
 
     ### optimisation params
     trading_pair = pair
@@ -94,6 +94,36 @@ def opt_loop(pair, op):
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
     cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
+    if not loop:
+        rt = ((ma[1] - ma[0]) / step_size) * ((sl[1] - sl[0]) / step_size)
+        run_counter = 0
+
+        def cb(MaCross):
+            global run_counter
+            global t_start
+            global rt
+            run_counter += 1
+            if run_counter % (rt / 100) == 0:
+                t_elapsed = time.perf_counter()
+                elapsed = t_elapsed - t_start
+                est_tot = ((rt / run_counter) * elapsed)
+                est_rem = est_tot - elapsed
+                hours = elapsed // 3600
+                minutes = elapsed // 60
+                print('-')
+                # print(f'Runs completed: {run_counter}/{rt}')
+                print(f'{int(run_counter / (rt / 100))}% Complete')
+                if hours == 0:
+                    print(f'Time elapsed: {int(minutes % 60)}m')
+                else:
+                    print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
+                if est_rem // 3600 == 0:
+                    print(f'Estimated time left: {int(est_rem // 60)}m')
+                else:
+                    print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
+
+        cerebro.optcallback(cb)
+
     if __name__ == '__main__':
 
         print(f'Running {trading_pair} tests')
@@ -103,23 +133,26 @@ def opt_loop(pair, op):
         start = str(start_date)
         end = str(end_date)
 
-        print('-')
         rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
                       # divisor,
                       pos_size, step_size, timescale)
 
-        print('-')
+        x = time.time()
+        y = time.gmtime(x)
+        print(f'Time completed: {y[3]}:{y[4]}')
+
         t_end = time.perf_counter()
         global t
         t = t_end - t_start
         hours = t // 3600
         minutes = t // 60
         if int(hours) > 0:
-            print(f'Time elapsed:{int(hours)}h {int(minutes % 60)}m')
+            print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
         elif int(minutes) > 0:
-            print(f'{int(minutes)}m')
+            print(f'Time elapsed: {int(minutes)}m')
         else:
             print(f'Time elapsed: {int(t)}s')
+        print('-')
 
 pairs_list = get_pairs('USDT')
 
@@ -130,5 +163,9 @@ files_list = list(folder.glob('*.csv'))
 done_list = [file.stem for file in files_list]
 pairs = [x for x in pairs_list if not x in done_list]
 
+### Run optimisation for all pairs in list
 for pair in pairs:
-    opt_loop(pair, op)
+    optimise(pair, op, True)
+
+### Run optimisation for just one pair
+# optimise('BTCUSDT', op, False)
