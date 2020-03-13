@@ -18,7 +18,7 @@ op = {  # optimisation params dictionary
     'ma': (1000, 2410),
     'risk': (25, 1060),
     'div': (2, 20),
-    'step': 1000,
+    'step': 25,
     'size': 25
 }
 
@@ -33,8 +33,6 @@ def get_pairs(quote):
         if item['symbol'][-length:] == quote:
             if not (item['symbol'] in ['PAXUSDT', 'USDSBUSDT', 'BCHSVUSDT', 'BCHABCUSDT', 'VENUSDT', 'TUSDUSDT', 'USDCUSDT', 'USDSUSDT', 'BUSDUSDT', 'EURUSDT', 'BCCUSDT', 'IOTAUSDT']):
                 pairs_list.append(item['symbol'])
-
-
 
     return pairs_list
 
@@ -93,10 +91,10 @@ def optimise(pair, op, loop):
     cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
     if not loop:
-        rt = ((ma[1] - ma[0]) / step_size) * ((risk[1] - risk[0]) / step_size)
+        rt = ((ma[1] - ma[0]) // step_size) * ((risk[1] - risk[0]) // step_size) * ((divisor[1] - divisor[0]) // div_step)
         run_counter = 0
 
-        def cb(MaCross):
+        def cb(strat):
             global run_counter
             global t_start
             global rt

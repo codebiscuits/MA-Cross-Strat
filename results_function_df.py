@@ -43,14 +43,16 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
                 total_won = 0
                 total_lost = 0
                 strike_rate = 0
-            df_list.append([period_a, period_b, divisor,
+            df_list.append([period_a, period_b,
+                            divisor,
                             sqn_value, strike_rate,
                             pnl_avg, pnl_net,
                             total_open, total_closed, total_won, total_lost])
 
     ### more efficient to build a list of lists and then turn that into a dataframe, rather than build the dataframe iteratively
     df = pd.DataFrame(df_list,
-                   columns=['ma', 'risk', 'divisor',
+                   columns=['ma', 'risk',
+                            'divisor',
                             'sqn', 'strike_rate',
                             'pnl_avg', 'pnl_net',
                             'total_open', 'total_closed', 'total_won', 'total_lost'])

@@ -222,7 +222,7 @@ class MaCrossRoot(bt.Strategy):
         self.buyprice = None
         self.buycomm = None
 
-        self.root_ma = round(math.sqrt(self.ma_periods))
+        self.root_ma = round(math.sqrt(self.params.ma_periods))
 
         self.ema = bt.ind.EMA(self.data.close, period=self.params.ma_periods)
         self.sma = bt.ind.SMA(self.data.close, period=self.params.ma_periods)
