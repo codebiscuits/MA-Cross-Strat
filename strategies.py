@@ -326,11 +326,11 @@ class MaCrossFrac(bt.Strategy):
 
         self.ema = bt.ind.EMA(self.data.close, period=self.params.ma_periods)
         self.sma = bt.ind.SMA(self.data.close, period=self.params.ma_periods)
-        self.roc = bt.ind.ROC(self.data.close, period=round(self.params.ma_periods/self.params.divisor))
+        self.roc = bt.ind.ROC(self.data.close, period=round(self.params.ma_periods/self.params.divisor), plot=False)
         # TODO it might be worth trying a few different values for volatil, like ma_periods*2 or ma_periods/2 etc
-        self.volatil = bt.ind.StdDev(self.roc, period=self.params.ma_periods)
-        self.buysig = bt.ind.CrossOver(self.ema, self.sma)
-        self.sellsig = bt.ind.CrossOver(self.sma, self.ema)
+        self.volatil = bt.ind.StdDev(self.roc, period=self.params.ma_periods, plot=False)
+        self.buysig = bt.ind.CrossOver(self.ema, self.sma, plot=False)
+        self.sellsig = bt.ind.CrossOver(self.sma, self.ema, plot=False)
         self.stop_band = self.params.vol_mult * self.volatil * 0.01
 
     def notify_order(self, order):

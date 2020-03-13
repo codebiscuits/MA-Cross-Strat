@@ -7,18 +7,19 @@ import strategies
 import results_function_df as rf
 from pathlib import Path
 
-startcash = 1000
-trading_pair = 'BTCUSDT'
-strat = strategies.MaCross
+trading_pair = 'ETHUSDT'
+strat = strategies.MaCrossFrac
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-timescale = '5m'
-start_date = datetime.datetime(2020, 1, 1)
-end_date = datetime.datetime(2020, 1, 31)
+timescale = '1m'
+start_date = datetime.datetime(2019, 12, 1)
+end_date = datetime.datetime(2020, 2, 29)
 
 ### optimisation params
-ma = (2, 1002)
-sl = (0, 400)
-step_size = 10
+ma = (1000, 2410)
+sl = (25, 1060)
+divisor = (2, 20)
+step_size = 25
+div_step = 2
 pos_size = 25
 
 cerebro = bt.Cerebro(
@@ -33,6 +34,7 @@ t_start = time.perf_counter()
 cerebro.optstrategy(strat,
                     ma_periods = range(ma[0], ma[1], step_size),
                     vol_mult=range(sl[0], sl[1], step_size),
+                    divisor=range(divisor[0], divisor[1], div_step),
                     start=t_start)
 
 
@@ -49,14 +51,14 @@ data = btfeeds.GenericCSVData(
     compression=1
 )
 
-rt = ((ma[1] - ma[0])/step_size) * ((sl[1] - sl[0])/step_size)
+rt = ((ma[1] - ma[0])//step_size) * ((sl[1] - sl[0])//step_size) * ((divisor[1] - divisor[0])//div_step)
 run_counter = 0
-def cb(MaCross):
+def cb(strat):
     global run_counter
     global t_start
     global rt
     run_counter += 1
-    if run_counter % (rt / 100) == 0:
+    if run_counter % round(rt / 100) == 0:
         t_elapsed = time.perf_counter()
         elapsed = t_elapsed - t_start
         est_tot = ((rt / run_counter) * elapsed)
@@ -78,7 +80,7 @@ def cb(MaCross):
 PercentSizer.params.percents = pos_size
 
 cerebro.adddata(data)
-cerebro.broker.setcash(startcash)
+cerebro.broker.setcash(1000)
 cerebro.addsizer(PercentSizer)
 cerebro.broker.setcommission(commission=0.00075)
 cerebro.optcallback(cb)
@@ -97,7 +99,9 @@ if __name__ == '__main__':
     end = str(end_date)
 
     print('-')
-    rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl, pos_size, step_size, timescale)
+    rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
+                  divisor,
+                  pos_size, step_size, timescale)
 
     print('-')
     t_end = time.perf_counter()

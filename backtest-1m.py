@@ -8,22 +8,22 @@ from pathlib import Path
 import matplotlib
 
 startcash = 1000
-trading_pair = 'BTCUSDT'
+trading_pair = 'ETHUSDT'
 strat = strategies.MaCrossFrac
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-ma = 1370
-mult = 280
+ma = 1800
+mult = 425
 divisor = 10
 pos_size = 25
 timescale = '1m'
-start_date = datetime.datetime(2020, 1, 1)
-end_date = datetime.datetime(2020, 1, 30)
+start_date = datetime.datetime(2020, 2, 27)
+end_date = datetime.datetime(2020, 2, 29)
 
 t_start = time.perf_counter()
 
 cerebro = bt.Cerebro(
-    stdstats=False,
-    optreturn=True,
+    # stdstats=False,
+    # optreturn=True,
     optdatas=True,
     # exactbars=True            # This was the cause of the 'deque index out of range' issue
 )
@@ -37,7 +37,7 @@ datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
 data = btfeeds.GenericCSVData(
     dataname=datapath,
     fromdate=start_date,
-    todate=end_date,
+    # todate=end_date,
     dtformat=('%Y-%m-%d %H:%M:%S'),
     datetime=0, high=2, low=3, open=1, close=4, volume=5, openinterest=-1,
     timeframe=bt.TimeFrame.Minutes,

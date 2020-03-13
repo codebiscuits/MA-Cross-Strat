@@ -10,17 +10,16 @@ from binance.client import Client
 import keys
 
 op = {  # optimisation params dictionary
-    'pair': 'BTCUSDT',
+    'pair': 'ETHUSDT',  # only used when a single opt_run is being done
     'strat': strategies.MaCrossFrac,
     'timescale': '1m',
-    'start': datetime.datetime(2019, 1, 1),
-    'end': datetime.datetime(2020, 1, 31),
-    'ma': (10, 2010),
-    'risk': (0, 1500),
+    'start': datetime.datetime(2019, 12, 1),
+    'end': datetime.datetime(2020, 2, 29),
+    'ma': (1000, 2410),
+    'risk': (25, 1060),
     'div': (2, 20),
-    'step': 20,
-    'size': 25,
-    'cash': 1000
+    'step': 1000,
+    'size': 25
 }
 
 def get_pairs(quote):
@@ -53,7 +52,6 @@ def optimise(pair, op, loop):
     divisor = op.get('div')
     step_size = op.get('step')
     pos_size = op.get('size')
-    startcash = op.get('cash')
 
 
     cerebro = bt.Cerebro(
@@ -68,7 +66,7 @@ def optimise(pair, op, loop):
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
                         vol_mult=range(risk[0], risk[1], step_size),
-                        # divisor=range(divisor[0], divisor[1], 2),
+                        divisor=range(divisor[0], divisor[1], 2),
                         start=t_start)
 
     datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
@@ -88,14 +86,14 @@ def optimise(pair, op, loop):
     PercentSizer.params.percents = pos_size
 
     cerebro.adddata(data)
-    cerebro.broker.setcash(startcash)
+    cerebro.broker.setcash(1000)
     cerebro.addsizer(PercentSizer)
     cerebro.broker.setcommission(commission=0.00075)
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
     cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
     if not loop:
-        rt = ((ma[1] - ma[0]) / step_size) * ((sl[1] - sl[0]) / step_size)
+        rt = ((ma[1] - ma[0]) / step_size) * ((risk[1] - risk[0]) / step_size)
         run_counter = 0
 
         def cb(MaCross):
@@ -134,12 +132,12 @@ def optimise(pair, op, loop):
         end = str(end_date)
 
         rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
-                      # divisor,
+                      divisor,
                       pos_size, step_size, timescale)
 
         x = time.time()
         y = time.gmtime(x)
-        print(f'Time completed: {y[3]}:{y[4]}')
+        print(f'Completed at {y[3]}:{y[4]}')
 
         t_end = time.perf_counter()
         global t
@@ -164,8 +162,8 @@ done_list = [file.stem for file in files_list]
 pairs = [x for x in pairs_list if not x in done_list]
 
 ### Run optimisation for all pairs in list
-for pair in pairs:
-    optimise(pair, op, True)
+# for pair in pairs:
+#     optimise(pair, op, True)
 
 ### Run optimisation for just one pair
-# optimise('BTCUSDT', op, False)
+optimise('ETHUSDT', op, False)
