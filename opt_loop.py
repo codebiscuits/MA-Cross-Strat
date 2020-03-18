@@ -64,7 +64,7 @@ def optimise(pair, op, loop):
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
                         vol_mult=range(risk[0], risk[1], step_size),
-                        divisor=range(divisor[0], divisor[1], 2),
+                        # divisor=range(divisor[0], divisor[1], 2),
                         start=t_start)
 
     datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')

@@ -6,8 +6,9 @@ from sizers import PercentSizer
 import strategies
 import results_function_df as rf
 from pathlib import Path
+import math
 
-trading_pair = 'ETHUSDT'
+trading_pair = 'ADAUSDT'
 strat = strategies.MaCrossFrac
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 timescale = '1m'
@@ -17,9 +18,9 @@ end_date = datetime.datetime(2020, 2, 29)
 ### optimisation params
 ma = (1000, 2410)
 sl = (25, 1060)
-divisor = (2, 20)
+divisor = (2, 36)
 step_size = 25
-div_step = 2
+div_step = 3
 pos_size = 25
 
 cerebro = bt.Cerebro(
@@ -51,7 +52,7 @@ data = btfeeds.GenericCSVData(
     compression=1
 )
 
-rt = ((ma[1] - ma[0])//step_size) * ((sl[1] - sl[0])//step_size) * ((divisor[1] - divisor[0])//div_step)
+rt = (math.ceil((ma[1] - ma[0])/step_size)) * (math.ceil((sl[1] - sl[0])/step_size)) * (math.ceil((divisor[1] - divisor[0])/div_step))
 run_counter = 0
 def cb(strat):
     global run_counter
