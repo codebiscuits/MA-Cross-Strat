@@ -3,20 +3,20 @@ import backtrader.feeds as btfeeds
 import datetime
 import time
 from sizers import PercentSizer
+from sizers import FixedReverser
 import strategies
 from pathlib import Path
-import matplotlib
 
 startcash = 1000
 trading_pair = 'ETHUSDT'
-strat = strategies.MaCrossFrac
+strat = strategies.MaCrossFracNew
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 ma = 1800
-mult = 425
-divisor = 10
-pos_size = 25
+mult = 650
+divisor = 26
+pos_size = 99
 timescale = '1m'
-start_date = datetime.datetime(2020, 2, 27)
+start_date = datetime.datetime(2020, 1, 1)
 end_date = datetime.datetime(2020, 2, 29)
 
 t_start = time.perf_counter()
@@ -28,7 +28,7 @@ cerebro = bt.Cerebro(
     # exactbars=True            # This was the cause of the 'deque index out of range' issue
 )
 
-cerebro.addstrategy(strat, ma_periods=ma, vol_mult=mult, divisor=divisor, pos_size=pos_size, start=t_start)
+cerebro.addstrategy(strat, ma_periods=ma, vol_mult=mult, divisor=divisor, start=t_start)
 
 
 datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
@@ -44,26 +44,29 @@ data = btfeeds.GenericCSVData(
     compression=1
 )
 
+PercentSizer.params.percents = pos_size
+
 cerebro.adddata(data)
 cerebro.broker.setcash(startcash)
 cerebro.addsizer(PercentSizer)
 cerebro.broker.setcommission(commission=0.00075)
 cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
 cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
-PercentSizer.params.percents = pos_size
 
 
 if __name__ == '__main__':
 
-    print(f'Running {trading_pair} tests')
+    print(f'Running {trading_pair} - {s_n} tests')
 
     strat_list = cerebro.run()
     results = strat_list[0]
 
-    pnl_value = results.analyzers.ta.get_analysis()['pnl']['net']['average']
+    try:
+        pnl_value = results.analyzers.ta.get_analysis()['pnl']['net']['average']
+    except KeyError:
+        pnl_value = 0
     sqn_result = results.analyzers.sqn.get_analysis()
-    # .get_analysis() returns a dict so use dictionary .get method to retrieve sqn score
-    # pnl_value = pnl_result.get(['pnl']['net']['average'])
+    ### .get_analysis() returns a dict so use dictionary .get method to retrieve sqn score
     sqn_value = sqn_result.get('sqn')
 
     endcash = cerebro.broker.getvalue()

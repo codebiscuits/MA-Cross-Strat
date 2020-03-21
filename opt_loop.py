@@ -11,15 +11,16 @@ import keys
 
 op = {  # optimisation params dictionary
     'pair': 'ETHUSDT',  # only used when a single opt_run is being done
-    'strat': strategies.MaCrossFrac,
+    'strat': strategies.MaCrossFracNew,
     'timescale': '1m',
     'start': datetime.datetime(2019, 12, 1),
     'end': datetime.datetime(2020, 2, 29),
-    'ma': (1000, 2410),
+    'ma': (25, 2410),
     'risk': (25, 1060),
-    'div': (2, 20),
-    'step': 25,
-    'size': 25
+    'div': (2, 40),
+    'step': 1000,
+    'div_step': 40,
+    'size': 90
 }
 
 def get_pairs(quote):
@@ -49,6 +50,7 @@ def optimise(pair, op, loop):
     risk = op.get('risk')
     divisor = op.get('div')
     step_size = op.get('step')
+    div_step = op.get('div_step')
     pos_size = op.get('size')
 
 
@@ -64,7 +66,7 @@ def optimise(pair, op, loop):
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
                         vol_mult=range(risk[0], risk[1], step_size),
-                        # divisor=range(divisor[0], divisor[1], 2),
+                        divisor=range(divisor[0], divisor[1], div_step),
                         start=t_start)
 
     datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
@@ -91,7 +93,7 @@ def optimise(pair, op, loop):
     cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
     if not loop:
-        rt = ((ma[1] - ma[0]) // step_size) * ((risk[1] - risk[0]) // step_size) * ((divisor[1] - divisor[0]) // div_step)
+        rt = math.ceil((ma[1] - ma[0])/step_size) * math.ceil((sl[1] - sl[0])/step_size) * math.ceil((divisor[1] - divisor[0])/div_step)
         run_counter = 0
 
         def cb(strat):
@@ -130,7 +132,7 @@ def optimise(pair, op, loop):
         end = str(end_date)
 
         rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
-                      divisor,
+                      divisor, div_step,
                       pos_size, step_size, timescale)
 
         x = time.time()
@@ -152,7 +154,7 @@ def optimise(pair, op, loop):
 
 pairs_list = get_pairs('USDT')
 
-params = (f'ma{op.get("ma")[0]}-{op.get("ma")[1]}_sl{op.get("risk")[0]}-{op.get("risk")[1]}_div10_step{op.get("step")}')
+params = (f'ma{op.get("ma")[0]}-{op.get("ma")[1]}_sl{op.get("risk")[0]}-{op.get("risk")[1]}_step{op.get("step")}_div{op.get("div")[0]}-{op.get("div")[1]}_div-step{op.get("div_step")}')
 folder = Path(f'Z:/results/{op.get("strat").params.strat_name}/{op.get("timescale")}/{params}/size-{op.get("size")}/{str(op.get("start"))[:10]}_{str(op.get("end"))[:10]}')
 
 files_list = list(folder.glob('*.csv'))
@@ -160,8 +162,8 @@ done_list = [file.stem for file in files_list]
 pairs = [x for x in pairs_list if not x in done_list]
 
 ### Run optimisation for all pairs in list
-# for pair in pairs:
-#     optimise(pair, op, True)
+for pair in pairs:
+    optimise(pair, op, True)
 
 ### Run optimisation for just one pair
-optimise('ETHUSDT', op, False)
+# optimise('ETHUSDT', op, False)

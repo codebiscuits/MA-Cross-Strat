@@ -3,13 +3,13 @@ import pandas as pd
 from pathlib import Path
 
 def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
-               divisor,
+               divisor, div_step,
                size, step_size, timescale):
 
     '''function to create a numpy array of appropriate size and populate it with results from the strategy object,
         then save the array with a procedurally generated path and filename'''
 
-    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div{divisor[0]}-{divisor[1]}_step{step_size}'
+    range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_step{step_size}_div{divisor[0]}-{divisor[1]}_div-step{div_step}'
     # range_str = f'ma{ma[0]}-{ma[1]}_sl{sl[0]}-{sl[1]}_div10_step{step_size}'
 
     start_date = start
@@ -60,21 +60,21 @@ def array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
 
 
     ### save the array for future recall
-    if not os.path.isdir(Path(f'Z:/results')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}'))  # creates the folder if it doesn't
-    if not os.path.isdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}')):  # checks that the relevant folder exists
-        os.mkdir(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'V:/results')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'V:/results'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'V:/results/{s_n}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'V:/results/{s_n}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'V:/results/{s_n}/{timescale}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'V:/results/{s_n}/{timescale}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'V:/results/{s_n}/{timescale}/{range_str}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'V:/results/{s_n}/{timescale}/{range_str}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'V:/results/{s_n}/{timescale}/{range_str}/size-{size}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'V:/results/{s_n}/{timescale}/{range_str}/size-{size}'))  # creates the folder if it doesn't
+    if not os.path.isdir(Path(f'V:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}')):  # checks that the relevant folder exists
+        os.mkdir(Path(f'V:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}'))  # creates the folder if it doesn't
 
     try:
-        df.to_csv(Path(f'Z:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}/{trading_pair}.csv'))
+        df.to_csv(Path(f'V:/results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}/{trading_pair}.csv'))
     except:
         df.to_csv(Path(f'results/{s_n}/{timescale}/{range_str}/size-{size}/{date_range}/{trading_pair}.csv'))
         print('Could not access NAS, results saved locally.')

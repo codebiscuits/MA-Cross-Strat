@@ -8,19 +8,19 @@ import results_function_df as rf
 from pathlib import Path
 import math
 
-trading_pair = 'ADAUSDT'
-strat = strategies.MaCrossFrac
+trading_pair = 'ETHUSDT'
+strat = strategies.MaCrossFracNew
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
 timescale = '1m'
 start_date = datetime.datetime(2019, 12, 1)
 end_date = datetime.datetime(2020, 2, 29)
 
 ### optimisation params
-ma = (1000, 2410)
+ma = (25, 2410)
 sl = (25, 1060)
-divisor = (2, 36)
-step_size = 25
-div_step = 3
+divisor = (2, 40)
+step_size = 50
+div_step = 4
 pos_size = 25
 
 cerebro = bt.Cerebro(
@@ -39,7 +39,7 @@ cerebro.optstrategy(strat,
                     start=t_start)
 
 
-datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
+datapath = Path(f'V:/Data/{trading_pair}-{timescale}-data.csv')
 
 # Create a data feed
 data = btfeeds.GenericCSVData(
@@ -52,14 +52,16 @@ data = btfeeds.GenericCSVData(
     compression=1
 )
 
-rt = (math.ceil((ma[1] - ma[0])/step_size)) * (math.ceil((sl[1] - sl[0])/step_size)) * (math.ceil((divisor[1] - divisor[0])/div_step))
+rt = math.ceil((ma[1] - ma[0])/step_size) * math.ceil((sl[1] - sl[0])/step_size) * math.ceil((divisor[1] - divisor[0])/div_step)
 run_counter = 0
+print(rt)
 def cb(strat):
     global run_counter
     global t_start
     global rt
     run_counter += 1
-    if run_counter % round(rt / 100) == 0:
+    modu = max(1, round(rt / 100))
+    if run_counter % modu == 0:
         t_elapsed = time.perf_counter()
         elapsed = t_elapsed - t_start
         est_tot = ((rt / run_counter) * elapsed)
