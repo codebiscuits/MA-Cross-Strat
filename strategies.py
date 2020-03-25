@@ -517,7 +517,7 @@ class MaCrossFracNew(bt.Strategy):
 
     def log(self, txt, dt=None):
         dt = dt or self.datas[0].datetime.date(0)
-        print('%s, %s' % (dt.isoformat(), txt))
+        # print('%s, %s' % (dt.isoformat(), txt))
 
     def __init__(self):
         self.startcash = self.broker.getvalue()
@@ -543,11 +543,14 @@ class MaCrossFracNew(bt.Strategy):
         if not self.position:
             if self.buysig:
                 buy_ord = self.order_target_percent(target=self.p.percents)
-                # buy_ord.addinfo(name="Long Market Entry")
-                stop_size = buy_ord.size - abs(self.position.size)
-                self.sl_ord = self.sell(exectype=bt.Order.StopTrail, size=stop_size, trailpercent=self.stop_band)
-                self.sl_ord.addinfo(name='Long Stop Loss')
-                self.log(f'BUY CREATE, {self.dataclose[0]:.2f}, size = {self.position.size}')
+                try:
+                    buy_ord.addinfo(name="Long Market Entry")
+                    stop_size = buy_ord.size - abs(self.position.size)
+                    self.sl_ord = self.sell(exectype=bt.Order.StopTrail, size=stop_size, trailpercent=self.stop_band)
+                    self.sl_ord.addinfo(name='Long Stop Loss')
+                    self.log(f'BUY CREATE, {self.dataclose[0]:.2f}, size = {self.position.size}')
+                except AttributeError:
+                    return
             if self.sellsig:
                 sell_ord = self.order_target_percent(target=-self.p.percents)
                 sell_ord.addinfo(name="Short Market Entry")
@@ -559,11 +562,14 @@ class MaCrossFracNew(bt.Strategy):
             if self.buysig:
                 if self.position.size < 0:
                     buy_ord = self.order_target_percent(target=self.p.percents, oco=self.sl_ord)
-                    buy_ord.addinfo(name="Long Market Entry")
-                    stop_size = buy_ord.size - abs(self.position.size)
-                    self.sl_ord = self.sell(size=stop_size, exectype=bt.Order.StopTrail, trailpercent=self.stop_band)
-                    self.sl_ord.addinfo(name='Long Stop Loss')
-                    self.log(f'BUY CREATE-FLIP LONG, {self.dataclose[0]:.2f}, size = {self.position.size}')
+                    try:
+                        buy_ord.addinfo(name="Long Market Entry")
+                        stop_size = buy_ord.size - abs(self.position.size)
+                        self.sl_ord = self.sell(size=stop_size, exectype=bt.Order.StopTrail, trailpercent=self.stop_band)
+                        self.sl_ord.addinfo(name='Long Stop Loss')
+                        self.log(f'BUY CREATE-FLIP LONG, {self.dataclose[0]:.2f}, size = {self.position.size}')
+                    except AttributeError:
+                        return
             if self.sellsig:
                 if self.position.size > 0:
                     sell_ord = self.order_target_percent(target=-self.p.percents, oco=self.sl_ord)

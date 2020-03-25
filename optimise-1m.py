@@ -20,7 +20,7 @@ ma = (25, 2410)
 sl = (25, 1060)
 divisor = (2, 40)
 step_size = 50
-div_step = 4
+div_step = 3
 pos_size = 25
 
 cerebro = bt.Cerebro(
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     print('-')
     rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
-                  divisor,
+                  divisor, div_step,
                   pos_size, step_size, timescale)
 
     print('-')
