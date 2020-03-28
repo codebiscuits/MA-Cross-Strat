@@ -21,7 +21,7 @@ sl = (25, 1060)
 divisor = (2, 40)
 step_size = 50
 div_step = 3
-pos_size = 25
+pos_size = 90
 
 cerebro = bt.Cerebro(
     stdstats=False,

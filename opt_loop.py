@@ -8,18 +8,19 @@ import results_function_df as rf
 from pathlib import Path
 from binance.client import Client
 import keys
+import math
 
 op = {  # optimisation params dictionary
-    'pair': 'ETHUSDT',  # only used when a single opt_run is being done
+    'pair': 'LTCUSDT',  # only used when a single opt_run is being done
     'strat': strategies.MaCrossFracNew,
     'timescale': '1m',
     'start': datetime.datetime(2019, 12, 1),
     'end': datetime.datetime(2020, 2, 29),
-    'ma': (25, 2410),
-    'risk': (25, 1060),
-    'div': (2, 40),
-    'step': 1000,
-    'div_step': 40,
+    'ma': (500, 2410),
+    'risk': (150, 1060),
+    'div': (2, 12),
+    'step': 50,
+    'div_step': 2,
     'size': 90
 }
 
@@ -47,9 +48,9 @@ def optimise(pair, op, loop):
     start_date = op.get('start')
     end_date = op.get('end')
     ma = op.get('ma')
-    risk = op.get('risk')
-    divisor = op.get('div')
+    sl = op.get('risk')
     step_size = op.get('step')
+    divisor = op.get('div')
     div_step = op.get('div_step')
     pos_size = op.get('size')
 
@@ -65,7 +66,7 @@ def optimise(pair, op, loop):
 
     cerebro.optstrategy(strat,
                         ma_periods=range(ma[0], ma[1], step_size),
-                        vol_mult=range(risk[0], risk[1], step_size),
+                        vol_mult=range(sl[0], sl[1], step_size),
                         divisor=range(divisor[0], divisor[1], div_step),
                         start=t_start)
 
@@ -92,35 +93,35 @@ def optimise(pair, op, loop):
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='ta')
     cerebro.addanalyzer(bt.analyzers.SQN, _name='sqn')
 
-    if not loop:
-        rt = math.ceil((ma[1] - ma[0])/step_size) * math.ceil((sl[1] - sl[0])/step_size) * math.ceil((divisor[1] - divisor[0])/div_step)
-        run_counter = 0
-
-        def cb(strat):
-            global run_counter
-            global t_start
-            global rt
-            run_counter += 1
-            if run_counter % (rt / 100) == 0:
-                t_elapsed = time.perf_counter()
-                elapsed = t_elapsed - t_start
-                est_tot = ((rt / run_counter) * elapsed)
-                est_rem = est_tot - elapsed
-                hours = elapsed // 3600
-                minutes = elapsed // 60
-                print('-')
-                # print(f'Runs completed: {run_counter}/{rt}')
-                print(f'{int(run_counter / (rt / 100))}% Complete')
-                if hours == 0:
-                    print(f'Time elapsed: {int(minutes % 60)}m')
-                else:
-                    print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
-                if est_rem // 3600 == 0:
-                    print(f'Estimated time left: {int(est_rem // 60)}m')
-                else:
-                    print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
-
-        cerebro.optcallback(cb)
+    # if not loop:
+    #     rt = math.ceil((ma[1] - ma[0])/step_size) * math.ceil((sl[1] - sl[0])/step_size) * math.ceil((divisor[1] - divisor[0])/div_step)
+    #     run_counter = 0
+    #
+    #     def cb(strat):
+    #         global run_counter
+    #         global t_start
+    #         global rt
+    #         run_counter += 1
+    #         if run_counter % (rt / 100) == 0:
+    #             t_elapsed = time.perf_counter()
+    #             elapsed = t_elapsed - t_start
+    #             est_tot = ((rt / run_counter) * elapsed)
+    #             est_rem = est_tot - elapsed
+    #             hours = elapsed // 3600
+    #             minutes = elapsed // 60
+    #             print('-')
+    #             # print(f'Runs completed: {run_counter}/{rt}')
+    #             print(f'{int(run_counter / (rt / 100))}% Complete')
+    #             if hours == 0:
+    #                 print(f'Time elapsed: {int(minutes % 60)}m')
+    #             else:
+    #                 print(f'Time elapsed: {int(hours)}h {int(minutes % 60)}m')
+    #             if est_rem // 3600 == 0:
+    #                 print(f'Estimated time left: {int(est_rem // 60)}m')
+    #             else:
+    #                 print(f'Estimated time left: {int(est_rem // 3600)}h {int((est_rem // 60) % 60)}m')
+    #
+    #     cerebro.optcallback(cb)
 
     if __name__ == '__main__':
 
@@ -131,7 +132,7 @@ def optimise(pair, op, loop):
         start = str(start_date)
         end = str(end_date)
 
-        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, risk,
+        rf.array_func(opt_runs, start, end, s_n, trading_pair, ma, sl,
                       divisor, div_step,
                       pos_size, step_size, timescale)
 
@@ -166,4 +167,4 @@ for pair in pairs:
     optimise(pair, op, True)
 
 ### Run optimisation for just one pair
-# optimise('ETHUSDT', op, False)
+# optimise('LTCUSDT', op, False)

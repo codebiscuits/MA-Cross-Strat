@@ -11,13 +11,13 @@ startcash = 1000
 trading_pair = 'ETHUSDT'
 strat = strategies.MaCrossFracNew
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-ma = 1800
-mult = 650
-divisor = 26
-pos_size = 99
+ma = 1725
+mult = 775
+divisor = 2
+pos_size = 95
 timescale = '1m'
-start_date = datetime.datetime(2020, 1, 1)
-end_date = datetime.datetime(2020, 2, 29)
+start_date = datetime.datetime(2020, 2, 29)
+end_date = datetime.datetime(2020, 3, 28)
 
 t_start = time.perf_counter()
 
@@ -31,7 +31,7 @@ cerebro = bt.Cerebro(
 cerebro.addstrategy(strat, ma_periods=ma, vol_mult=mult, divisor=divisor, start=t_start)
 
 
-datapath = Path(f'Z:/Data/{trading_pair}-{timescale}-data.csv')
+datapath = Path(f'V:/Data/{trading_pair}-{timescale}-data.csv')
 
 # Create a data feed
 data = btfeeds.GenericCSVData(
