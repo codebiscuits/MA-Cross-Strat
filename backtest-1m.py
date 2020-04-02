@@ -8,16 +8,17 @@ import strategies
 from pathlib import Path
 
 startcash = 1000
-trading_pair = 'ETHUSDT'
+trading_pair = 'QTUMUSDT'
 strat = strategies.MaCrossFracNew
 s_n = strat.params.strat_name      # name of current strategy as a string for generating filenames etc
-ma = 1725
-mult = 775
+ma = 1750
+mult = 750
 divisor = 2
-pos_size = 95
+pos_size = 25
 timescale = '1m'
-start_date = datetime.datetime(2020, 2, 29)
-end_date = datetime.datetime(2020, 3, 28)
+start_date = datetime.datetime(2019, 12, 1)
+end_date = datetime.datetime(2020, 2, 29)
+dates = True
 
 t_start = time.perf_counter()
 
@@ -34,15 +35,24 @@ cerebro.addstrategy(strat, ma_periods=ma, vol_mult=mult, divisor=divisor, start=
 datapath = Path(f'V:/Data/{trading_pair}-{timescale}-data.csv')
 
 # Create a data feed
-data = btfeeds.GenericCSVData(
-    dataname=datapath,
-    fromdate=start_date,
-    # todate=end_date,
-    dtformat=('%Y-%m-%d %H:%M:%S'),
-    datetime=0, high=2, low=3, open=1, close=4, volume=5, openinterest=-1,
-    timeframe=bt.TimeFrame.Minutes,
-    compression=1
-)
+if dates:
+    data = btfeeds.GenericCSVData(
+        dataname=datapath,
+        fromdate=start_date,
+        todate=end_date,
+        dtformat=('%Y-%m-%d %H:%M:%S'),
+        datetime=0, high=2, low=3, open=1, close=4, volume=5, openinterest=-1,
+        timeframe=bt.TimeFrame.Minutes,
+        compression=1
+    )
+else:
+    data = btfeeds.GenericCSVData(
+        dataname=datapath,
+        dtformat=('%Y-%m-%d %H:%M:%S'),
+        datetime=0, high=2, low=3, open=1, close=4, volume=5, openinterest=-1,
+        timeframe=bt.TimeFrame.Minutes,
+        compression=1
+    )
 
 PercentSizer.params.percents = pos_size
 

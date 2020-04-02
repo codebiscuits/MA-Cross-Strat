@@ -16,11 +16,11 @@ op = {  # optimisation params dictionary
     'timescale': '1m',
     'start': datetime.datetime(2019, 12, 1),
     'end': datetime.datetime(2020, 2, 29),
-    'ma': (500, 2410),
-    'risk': (150, 1060),
-    'div': (2, 12),
-    'step': 50,
-    'div_step': 2,
+    'ma': (1650, 1760),
+    'risk': (750, 860),
+    'div': (2, 5),
+    'step': 10,
+    'div_step': 1,
     'size': 90
 }
 
